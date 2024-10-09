@@ -1,0 +1,52 @@
+name: 'Bump minor or patch version'
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  bump-version:
+    name: 'Bump Version'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: 'Checkout source code'
+        uses: 'actions/checkout@v2'
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: 'Install bump-my-version and set GHA user'
+        run: |
+          pip install --upgrade bump-my-version
+          git config --global user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git config --global user.name "${GITHUB_ACTOR}"  # Use GITHUB_ACTOR directly
+          git config -l
+          
+      - name: 'List tags'
+        run: git tag -l
+
+      - name: 'Check latest semantic version change'
+        run: |
+          echo Script result: $(./scripts/check_latest_semver_change.sh)
+
+      - name: 'Bump version'
+        id: bump
+        run: |
+          bump-my-version bump --tag --no-sign-tags -vvv $(./scripts/check_latest_semver_change.sh) 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Push changes and tags'
+        if: success()
+        run: |
+          git push origin HEAD
+          git push origin --tags
+
+      - name: 'Check bump status'
+        if: steps.bump.outputs.bumped == 'true'
+        run: |
+          echo "Version was bumped from ${{ steps.bump.outputs.previous-version }} to ${{ steps.bump.outputs.current-version }}!"
