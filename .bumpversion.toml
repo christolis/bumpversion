@@ -28,4 +28,4 @@ post_commit_hooks = []
 
 [tool.bumpversion.parts.pre_l]
 values = ["alpha", "beta", "rc", "release"]
-optional_value = "final"
+optional_value = "release"
