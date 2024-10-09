@@ -9,4 +9,5 @@ class App {
 
 fun main() {
     println(App().greeting)
+    println("This is a new feature!")
 }
