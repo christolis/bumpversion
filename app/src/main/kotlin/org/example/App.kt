@@ -3,7 +3,7 @@ package org.example
 class App {
     val greeting: String
         get() {
-            return "Hi " + Version.VERSION
+            return "Hi wazei! The version is: " + Version.VERSION
         }
 }
 
